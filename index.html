@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Like Telecom - Sistema de Gestão de Ordens de Serviço</title>
+
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS Customizado -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Configuração do Tailwind para cores customizadas -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-blue': '#0A2463',
+                        'brand-orange': '#FF7F11',
+                        'brand-light': '#F8F8F8'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-blue to-blue-800">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="bg-brand-orange text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-wifi text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-brand-blue mb-2">LIKE TELECOM</h1>
+                <p class="text-gray-600">Sistema de Gestão de Ordens de Serviço</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2"></i>Email
+                    </label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-orange focus:border-brand-orange">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Senha
+                    </label>
+                    <input type="password" id="password" name="password" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-orange focus:border-brand-orange">
+                </div>
+
+                <div>
+                    <label for="userType" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user-tag mr-2"></i>Tipo de Usuário
+                    </label>
+                    <select id="userType" name="userType" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-orange focus:border-brand-orange">
+                        <option value="">Selecione o tipo</option>
+                        <option value="admin">Administrador</option>
+                        <option value="attendant">Atendente</option>
+                        <option value="technician">Técnico</option>
+                        <option value="helper">Ajudante</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-md transition duration-300 transform hover:scale-105">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+                </button>
+            </form>
+
+            <div id="loginMessage" class="mt-4 text-center text-sm hidden"></div>
+        </div>
+    </div>
+
+    <!-- Aplicação Principal -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-md sticky top-0 z-50">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-brand-orange text-white rounded-full w-10 h-10 flex items-center justify-center">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-brand-blue">LIKE TELECOM</h1>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <span id="userInfo" class="text-sm text-gray-600 hidden sm:block"></span>
+                    <button id="logoutBtn" class="text-gray-600 hover:text-brand-orange transition duration-200">
+                        <i class="fas fa-sign-out-alt text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Layout Principal -->
+        <div class="flex min-h-screen bg-gray-50">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="w-64 bg-white shadow-md transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out fixed lg:static h-full z-40">
+                <nav class="mt-8">
+                    <ul class="space-y-2 px-4">
+                        <li>
+                            <a href="#dashboard" class="nav-link flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-brand-light transition duration-200">
+                                <i class="fas fa-tachometer-alt mr-3 w-5"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#orders" class="nav-link flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-brand-light transition duration-200">
+                                <i class="fas fa-clipboard-list mr-3 w-5"></i>
+                                Ordens de Serviço
+                            </a>
+                        </li>
+                        <li id="usersMenu" class="hidden">
+                            <a href="#users" class="nav-link flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-brand-light transition duration-200">
+                                <i class="fas fa-users mr-3 w-5"></i>
+                                Usuários
+                            </a>
+                        </li>
+                        <li id="calendarMenu">
+                            <a href="#calendar" class="nav-link flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-brand-light transition duration-200">
+                                <i class="fas fa-calendar-alt mr-3 w-5"></i>
+                                Agenda
+                            </a>
+                        </li>
+                        <li id="reportsMenu" class="hidden">
+                            <a href="#reports" class="nav-link flex items-center px-4 py-3 text-gray-700 rounded-md hover:bg-brand-light transition duration-200">
+                                <i class="fas fa-chart-bar mr-3 w-5"></i>
+                                Relatórios
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Overlay para mobile -->
+            <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+            <!-- Menu Toggle Button (Mobile) -->
+            <button id="menuToggle" class="lg:hidden fixed top-4 left-4 z-50 bg-brand-orange text-white p-2 rounded-md">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Conteúdo Principal -->
+            <main class="flex-1 p-6 lg:ml-0">
+                <!-- Dashboard -->
+                <section id="dashboardSection" class="content-section">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Dashboard</h2>
+                        <p class="text-gray-600">Visão geral do sistema</p>
+                    </div>
+
+                    <!-- Cards de Métricas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Ordens Pendentes</p>
+                                    <p id="pendingCount" class="text-2xl font-bold text-brand-blue">0</p>
+                                </div>
+                                <div class="bg-yellow-100 p-3 rounded-full">
+                                    <i class="fas fa-clock text-yellow-600"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Em Execução</p>
+                                    <p id="executingCount" class="text-2xl font-bold text-brand-orange">0</p>
+                                </div>
+                                <div class="bg-orange-100 p-3 rounded-full">
+                                    <i class="fas fa-cog text-brand-orange"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Finalizadas Hoje</p>
+                                    <p id="completedCount" class="text-2xl font-bold text-green-600">0</p>
+                                </div>
+                                <div class="bg-green-100 p-3 rounded-full">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Total do Mês</p>
+                                    <p id="monthlyCount" class="text-2xl font-bold text-purple-600">0</p>
+                                </div>
+                                <div class="bg-purple-100 p-3 rounded-full">
+                                    <i class="fas fa-chart-line text-purple-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rankings -->
+                    <div id="rankingsSection" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 hidden">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                                Ranking Técnicos
+                            </h3>
+                            <div id="techniciansRanking" class="space-y-3">
+                                <!-- Rankings serão inseridos dinamicamente -->
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-medal text-orange-500 mr-2"></i>
+                                Ranking Ajudantes
+                            </h3>
+                            <div id="helpersRanking" class="space-y-3">
+                                <!-- Rankings serão inseridos dinamicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Ordens de Serviço -->
+                <section id="ordersSection" class="content-section hidden">
+                    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Ordens de Serviço</h2>
+                            <p class="text-gray-600">Gerenciar ordens de serviço</p>
+                        </div>
+                        <div class="mt-4 sm:mt-0 flex space-x-2">
+                            <button id="newOrderBtn" class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-md transition duration-200 hidden">
+                                <i class="fas fa-plus mr-2"></i>Nova Ordem
+                            </button>
+                            <button id="managePrioritiesBtn" class="bg-brand-blue hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-200 hidden">
+                                <i class="fas fa-sort mr-2"></i>Gerenciar Prioridades
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <select id="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-orange focus:border-brand-orange">
+                                    <option value="">Todos</option>
+                                    <option value="pending">Pendente</option>
+                                    <option value="executing">Em Execução</option>
+                                    <option value="completed">Finalizada</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                <select id="typeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-orange focus:border-brand-orange">
+                                    <option value="">Todos</option>
+                                    <option value="installation">Instalação</option>
+                                    <option value="support">Suporte</option>
+                                    <option value="removal">Remoção de Kit</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Técnico</label>
+                                <select id="technicianFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-orange focus:border-brand-orange">
+                                    <option value="">Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Ordens -->
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">Lista de Ordens</h3>
+                        </div>
+                        <div id="ordersList" class="divide-y divide-gray-200">
+                            <!-- Ordens serão inseridas dinamicamente -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Outras seções (Usuários, Agenda, Relatórios) -->
+                <section id="usersSection" class="content-section hidden">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Usuários</h2>
+                        <p class="text-gray-600">Gerenciar usuários do sistema</p>
+                    </div>
+                    <!-- Conteúdo dos usuários será implementado -->
+                </section>
+
+                <section id="calendarSection" class="content-section hidden">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Agenda</h2>
+                        <p class="text-gray-600">Calendário com feriados nacionais</p>
+                    </div>
+                    <!-- Calendário será implementado -->
+                </section>
+
+                <section id="reportsSection" class="content-section hidden">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Relatórios</h2>
+                        <p class="text-gray-600">Relatórios e análises</p>
+                    </div>
+                    <!-- Relatórios serão implementados -->
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal para Nova Ordem -->
+    <div id="newOrderModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Nova Ordem de Serviço</h3>
+                    <button id="closeNewOrderModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="newOrderForm" class="space-y-4">
+                    <!-- Formulário será implementado no JavaScript -->
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Detalhes da Ordem -->
+    <div id="orderDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Detalhes da Ordem</h3>
+                    <button id="closeOrderDetailsModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div id="orderDetailsContent">
+                    <!-- Conteúdo será inserido dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/script.js"></script>
+</body>
+</html>
